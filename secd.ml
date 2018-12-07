@@ -18,6 +18,13 @@ let makeCons i j =
   let n = !f in
   (cells.(n) <- Cons (i, j); f := n + 1; n)
 
+let popR r = match cells.(!r) with
+  | Cons (i, j) -> (r := j; i)
+  | _ -> failwith "Register points to a non-cons cell"
+
+let pushR r i =
+  r := makeCons i !r
+
 let rec f () =
   if !c = 0 then ()
   else (g (); f ())
