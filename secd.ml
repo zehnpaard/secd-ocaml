@@ -18,6 +18,14 @@ let makeCons i j =
   let n = !f in
   (cells.(n) <- Cons (i, j); f := n + 1; n)
 
+let car i = match cells.(i) with
+  | Cons (i, _) -> i
+  | _ -> failwith "Taking car of non-cons cell"
+
+let cdr i = match cells.(i) with
+  | Cons (_, j) -> j
+  | _ -> failwith "Taking cdr of non-cons cell"
+
 let popR r = match cells.(!r) with
   | Cons (i, j) -> (r := j; i)
   | _ -> failwith "Register points to a non-cons cell"
