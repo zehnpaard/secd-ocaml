@@ -33,6 +33,10 @@ let popR r = match cells.(!r) with
 let pushR r i =
   r := makeCons i !r
 
-let rec f () =
+let runOneStep () = match cells.(popR c) with
+  | Int 0 -> c := 0
+  | _ -> failwith "Unknown command"
+
+let rec run () =
   if !c = 0 then ()
-  else (g (); f ())
+  else (runOneStep (); run ())
