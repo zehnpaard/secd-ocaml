@@ -85,6 +85,29 @@ let runOneStep () = match cells.(popR c) with
       let false_branch = popR c in
       (pushR d !c; c := if cond then true_branch else false_branch)
   | Int 16 (* JOIN *) -> c := popR d
+  | Int 17 (* LDF *) ->
+      let func = popR c in
+      pushR s (makeCons func !e)
+  | Int 18 (* AP *) ->
+      let fe = popR s in
+      let func = car fe in
+      let env = cdr fe in
+      let arg = popR s in
+      begin
+        pushR d !c;
+        c := func;
+        pushR d !e;
+        e := makeCons arg env;
+        pushR d !s;
+        s := 0;
+      end; ()
+  | Int 19 (* RTN *) ->
+      let retv = popR s in
+      begin
+        s := makeCons retv (popR d);
+        e := (popR d);
+        c := (popR d);
+      end; ()
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
