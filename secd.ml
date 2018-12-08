@@ -48,6 +48,11 @@ let rec locate i j =
   in
   locatei i j !e
 
+let binOp r op =
+  let a = popR r in
+  let b = popR r in
+  pushR r (op a b)
+
 let runOneStep () = match cells.(popR c) with
   | Int 0 (* STOP *) -> c := 0
   | Int 1 (* NIL *) -> pushR s 0
@@ -59,42 +64,18 @@ let runOneStep () = match cells.(popR c) with
       pushR s (locate i j)
   | Int 4 (* CAR *) -> pushR s (car (popR s))
   | Int 5 (* CDR *) -> pushR s (cdr (popR s))
-  | Int 6 (* CONS *) ->
-      let car_ = popR s in
-      let cdr_ = popR s in
-      pushR s (makeCons car_ cdr_)
-  | Int 7 (* ATOM *) ->
+  | Int 6 (* ATOM *) ->
       (match cells.(popR s) with
          | Int _ -> pushR s (makeInt 1)
          | _ -> pushR s (makeInt 0))
-  | Int 8 (* EQ *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (if a = b then 1 else 0))
-  | Int 9 (* LEQ *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (if a <= b then 1 else 0))
-  | Int 10 (* ADD *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (a + b))
-  | Int 11 (* SUB *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (a - b))
-  | Int 12 (* MUL *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (a * b))
-  | Int 13 (* DIV *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (a / b))
-  | Int 14 (* REM *)
-      let a = popR s in
-      let b = popR s in
-      pushR s (makeInt (a mod b))
+  | Int 7 (* CONS *) -> binOp s (fun car_, cdr_ -> makeCons car_ cdr_)
+  | Int 8 (* EQ *) -> binOp s (fun a, b -> makeInt (if a = b then 1 else 0))
+  | Int 9 (* LEQ *) -> binOp s (fun a, b -> makeInt (if a <= b then 1 else 0))
+  | Int 10 (* ADD *) -> binOp s (fun a, b -> makeInt (a + b))
+  | Int 11 (* SUB *) -> binOp s (fun a, b -> makeInt (a - b))
+  | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (a * b))
+  | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (a / b))
+  | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (a mod b))
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
