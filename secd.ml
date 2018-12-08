@@ -76,6 +76,15 @@ let runOneStep () = match cells.(popR c) with
   | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (getn a * getn b))
   | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (getn a / getn b))
   | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (getn a mod getn b))
+  | Int 15 (* SEL *) ->
+      let cond = match cells.(popR s) with
+        | Int 0 -> false
+        | _ -> true
+      in
+      let true_branch = popR c in
+      let false_branch = popR c in
+      (pushR d !c; c := if cond then true_branch else false_branch)
+  | Int 16 (* JOIN *) -> c := popR d
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
