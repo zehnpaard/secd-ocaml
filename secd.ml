@@ -34,8 +34,12 @@ let pushR r i =
   r := makeCons i !r
 
 let runOneStep () = match cells.(popR c) with
-  | Int 0 -> c := 0
-  | _ -> failwith "Unknown command"
+  | Int 0 (* STOP *) -> c := 0
+  | Int 1 (* NIL *) -> pushR s 0
+  | Int 2 (* LDC *) -> pushR s (popR c)
+  | Int 3 (* LD *) -> e
+  | Int _ -> failwith "Unknown command"
+  | _ -> failwith "Cons cell found in place of command"
 
 let rec run () =
   if !c = 0 then ()
