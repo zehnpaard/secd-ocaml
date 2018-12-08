@@ -67,6 +67,34 @@ let runOneStep () = match cells.(popR c) with
       (match cells.(popR s) with
          | Int _ -> pushR s (makeInt 1)
          | _ -> pushR s (makeInt 0))
+  | Int 8 (* EQ *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (if a = b then 1 else 0))
+  | Int 9 (* LEQ *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (if a <= b then 1 else 0))
+  | Int 10 (* ADD *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (a + b))
+  | Int 11 (* SUB *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (a - b))
+  | Int 12 (* MUL *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (a * b))
+  | Int 13 (* DIV *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (a / b))
+  | Int 14 (* REM *)
+      let a = popR s in
+      let b = popR s in
+      pushR s (makeInt (a mod b))
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
