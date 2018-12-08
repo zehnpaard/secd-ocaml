@@ -63,6 +63,10 @@ let runOneStep () = match cells.(popR c) with
       let car_ = popR s in
       let cdr_ = popR s in
       pushR s (makeCons car_ cdr_)
+  | Int 7 (* ATOM *) ->
+      (match cells.(popR s) with
+         | Int _ -> pushR s (makeInt 1)
+         | _ -> pushR s (makeInt 0))
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
