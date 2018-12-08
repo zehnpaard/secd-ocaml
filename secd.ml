@@ -69,13 +69,13 @@ let runOneStep () = match cells.(popR c) with
          | Int _ -> pushR s (makeInt 1)
          | _ -> pushR s (makeInt 0))
   | Int 7 (* CONS *) -> binOp s (fun car_, cdr_ -> makeCons car_ cdr_)
-  | Int 8 (* EQ *) -> binOp s (fun a, b -> makeInt (if a = b then 1 else 0))
-  | Int 9 (* LEQ *) -> binOp s (fun a, b -> makeInt (if a <= b then 1 else 0))
-  | Int 10 (* ADD *) -> binOp s (fun a, b -> makeInt (a + b))
-  | Int 11 (* SUB *) -> binOp s (fun a, b -> makeInt (a - b))
-  | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (a * b))
-  | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (a / b))
-  | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (a mod b))
+  | Int 8 (* EQ *) -> binOp s (fun a, b -> makeInt (if getn a = getn b then 1 else 0))
+  | Int 9 (* LEQ *) -> binOp s (fun a, b -> makeInt (if getn a <= getn b then 1 else 0))
+  | Int 10 (* ADD *) -> binOp s (fun a, b -> makeInt (getn a + getn b))
+  | Int 11 (* SUB *) -> binOp s (fun a, b -> makeInt (getn a - getn b))
+  | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (getn a * getn b))
+  | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (getn a / getn b))
+  | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (getn a mod getn b))
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
