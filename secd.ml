@@ -57,6 +57,12 @@ let runOneStep () = match cells.(popR c) with
       let i = getn (car ij) in
       let j = getn (cdr ij) in
       pushR s (locate i j)
+  | Int 4 (* CAR *) -> pushR s (car (popR s))
+  | Int 5 (* CDR *) -> pushR s (cdr (popR s))
+  | Int 6 (* CONS *) ->
+      let car_ = popR s in
+      let cdr_ = popR s in
+      pushR s (makeCons car_ cdr_)
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
