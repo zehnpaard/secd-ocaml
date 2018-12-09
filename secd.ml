@@ -53,6 +53,9 @@ let binOp r op =
   let b = popR r in
   pushR r (op a b)
 
+let rplaca x y =
+  (cells.(x) := Cons (y, cdr x); x)
+
 let runOneStep () = match cells.(popR c) with
   | Int 0 (* STOP *) -> c := 0
   | Int 1 (* NIL *) -> pushR s 0
@@ -89,6 +92,7 @@ let runOneStep () = match cells.(popR c) with
       let func = popR c in
       pushR s (makeCons func !e)
   | Int 18 (* AP *) ->
+    (* (f.e' a).s e AP.c d -> nil a.e' f (s e c).d *)
       let fe = popR s in
       let func = car fe in
       let env = cdr fe in
@@ -107,6 +111,23 @@ let runOneStep () = match cells.(popR c) with
         s := makeCons retv (popR d);
         e := (popR d);
         c := (popR d);
+      end; ()
+  | Int 20 (* DUM *) -> pushR e 0
+  | Int 21 (* RAP *) ->
+      (* ((f.(nil.e)) v.s) (nil.e) (RAP.c) d ->
+         nil rplaca((nil.e),v) f (s e c.d) *)
+      (* (rplaca((nil.e),v).e) according to AoSC ?? *)
+      let fe = popR s in
+      let func = car fe in
+      let nenv = cdr fe in
+      let arg = popR s in
+      begin
+        pushR d !c;
+        c := func;
+        pushR d (cdr !e);
+        e := rplaca nenv arg;
+        pushR d !s;
+        s := 0;
       end; ()
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
