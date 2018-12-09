@@ -2,7 +2,7 @@ type t =
   | Int of int
   | Cons of int * int
 
-let cells = Array.make 1000 (Int 0)
+let cells = Array.make 100000 (Int 0)
 
 let s = ref 0;
 let e = ref 0;
@@ -53,6 +53,9 @@ let binOp r op =
   let b = popR r in
   pushR r (op a b)
 
+let rplaca x y =
+  (cells.(x) := Cons (y, cdr x); x)
+
 let runOneStep () = match cells.(popR c) with
   | Int 0 (* STOP *) -> c := 0
   | Int 1 (* NIL *) -> pushR s 0
@@ -69,13 +72,63 @@ let runOneStep () = match cells.(popR c) with
          | Int _ -> pushR s (makeInt 1)
          | _ -> pushR s (makeInt 0))
   | Int 7 (* CONS *) -> binOp s (fun car_, cdr_ -> makeCons car_ cdr_)
-  | Int 8 (* EQ *) -> binOp s (fun a, b -> makeInt (if a = b then 1 else 0))
-  | Int 9 (* LEQ *) -> binOp s (fun a, b -> makeInt (if a <= b then 1 else 0))
-  | Int 10 (* ADD *) -> binOp s (fun a, b -> makeInt (a + b))
-  | Int 11 (* SUB *) -> binOp s (fun a, b -> makeInt (a - b))
-  | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (a * b))
-  | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (a / b))
-  | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (a mod b))
+  | Int 8 (* EQ *) -> binOp s (fun a, b -> makeInt (if getn a = getn b then 1 else 0))
+  | Int 9 (* LEQ *) -> binOp s (fun a, b -> makeInt (if getn a <= getn b then 1 else 0))
+  | Int 10 (* ADD *) -> binOp s (fun a, b -> makeInt (getn a + getn b))
+  | Int 11 (* SUB *) -> binOp s (fun a, b -> makeInt (getn a - getn b))
+  | Int 12 (* MUL *) -> binOp s (fun a, b -> makeInt (getn a * getn b))
+  | Int 13 (* DIV *) -> binOp s (fun a, b -> makeInt (getn a / getn b))
+  | Int 14 (* REM *) -> binOp s (fun a, b -> makeInt (getn a mod getn b))
+  | Int 15 (* SEL *) ->
+      let cond = match cells.(popR s) with
+        | Int 0 -> false
+        | _ -> true
+      in
+      let true_branch = popR c in
+      let false_branch = popR c in
+      (pushR d !c; c := if cond then true_branch else false_branch)
+  | Int 16 (* JOIN *) -> c := popR d
+  | Int 17 (* LDF *) ->
+      let func = popR c in
+      pushR s (makeCons func !e)
+  | Int 18 (* AP *) ->
+    (* (f.e' a).s e AP.c d -> nil a.e' f (s e c).d *)
+      let fe = popR s in
+      let func = car fe in
+      let env = cdr fe in
+      let arg = popR s in
+      begin
+        pushR d !c;
+        c := func;
+        pushR d !e;
+        e := makeCons arg env;
+        pushR d !s;
+        s := 0;
+      end; ()
+  | Int 19 (* RTN *) ->
+      let retv = popR s in
+      begin
+        s := makeCons retv (popR d);
+        e := (popR d);
+        c := (popR d);
+      end; ()
+  | Int 20 (* DUM *) -> pushR e 0
+  | Int 21 (* RAP *) ->
+      (* ((f.(nil.e)) v.s) (nil.e) (RAP.c) d ->
+         nil rplaca((nil.e),v) f (s e c.d) *)
+      (* (rplaca((nil.e),v).e) according to AoSC ?? *)
+      let fe = popR s in
+      let func = car fe in
+      let nenv = cdr fe in
+      let arg = popR s in
+      begin
+        pushR d !c;
+        c := func;
+        pushR d (cdr !e);
+        e := rplaca nenv arg;
+        pushR d !s;
+        s := 0;
+      end; ()
   | Int _ -> failwith "Unknown command"
   | _ -> failwith "Cons cell found in place of command"
 
