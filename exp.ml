@@ -1,12 +1,9 @@
-type ident =
-  | Ident of string
-
 type t =
   | Nil
   | Int of int
-  | Var of ident
+  | Var of string
   | If of t * t * t
-  | Lambda of ident list * t
-  | Let of ident list * t list * t
-  | LetRec of ident list * t list * t
-  | Call of t list
+  | Lambda of string list * t
+  | Let of string list * t list * t
+  | LetRec of string list * t list * t
+  | Call of t * t list
