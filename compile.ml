@@ -1,5 +1,18 @@
 open Exp
 
+let index vname names =
+  let rec indx names i = match names with
+    | [] -> failwith "Variable " ^ vname ^ " not found in environment"
+    | xs :: xss ->
+      (let rec indx2 xs j = match xs with
+         | [] -> indx xss (i+1)
+         | n :: xss' when n = vname -> (i, j)
+         | _ :: xss' -> indx2 xss' (j + 1)
+       in
+       indx2 xs 0)
+  in
+  indx names 0
+
 let rec compile exp names acc = match exp with
   | Nil -> C.nil :: acc
   | Int n -> C.ldc :: n :: acc
