@@ -79,3 +79,6 @@ and compile_lambda body names acc =
 and compile_builtin args names acc = match args with
   | [] -> acc
   | arg :: args' -> compile_builtin args' names (compile arg names acc)
+and compile_app args names acc = match args with
+  | [] -> acc
+  | arg :: args' -> compile_app args' names (compile arg names (Cons :: acc))
