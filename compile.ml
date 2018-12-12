@@ -1,4 +1,5 @@
 type t =
+  | Stop
   | Nil
   | Ldc of int
   | Ld of int * int
@@ -9,6 +10,30 @@ type t =
   | Join
   | Ldf of t list
   | Sel of t list * t list
+  | Car
+  | Cdr
+  | Atom
+  | Cons
+  | Eq
+  | Leq
+  | Add
+  | Sub
+  | Mul
+  | Div
+  | Rem
+
+let builtins = Hashtbl.create 11
+Hashtbl.add builtins "car" Car
+Hashtbl.add builtins "cdr" Cdr
+Hashtbl.add builtins "atom" Atom
+Hashtbl.add builtins "cons" Cons
+Hashtbl.add builtins "=" Eq
+Hashtbl.add builtins "<=" Leq
+Hashtbl.add builtins "+" Add
+Hashtbl.add builtins "-" Sub
+Hashtbl.add builtins "*" Mul
+Hashtbl.add builtins "/" Div
+Hashtbl.add builtins "%" Rem
 
 let index vname names =
   let rec indx names i = match names with
@@ -36,8 +61,8 @@ let rec compile exp names acc = match exp with
       let names' = vars :: names in
       let cbody = compile_lambda body names' (Rap :: acc) in
       Dum :: Nil :: compile_app exps names' cbody
-  | Exp.Call (Exp.Var fname, args) when List.mem fname builtins ->
-      compile_builtin fname args names acc
+  | Exp.Call (Exp.Var fname, args) when Hashtbl.mem builtins fname ->
+      compile_builtin args names (Hashtbl.find builtins fname :: acc)
   | Exp.Call (Exp.Var fname, args) ->
       let cfunc = Ld (index fname names) :: Ap :: acc in
       Nil :: compile_app args names cfunc
