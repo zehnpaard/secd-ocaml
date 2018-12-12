@@ -76,3 +76,6 @@ and compile_if cond tcase fcase names acc =
   compile cond names acc'
 and compile_lambda body names acc =
   Ldf (compile body names [Rtn]) :: acc
+and compile_builtin args names acc = match args with
+  | [] -> acc
+  | arg :: args' -> compile_builtin args' names (compile arg names acc)
