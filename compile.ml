@@ -69,10 +69,10 @@ let rec compile exp names acc = match exp with
   | Exp.Call (exp1, args) ->
       let cfunc = compile exp1 names (Ap :: acc) in
       Nil :: compile_app args names cfunc
-  and compile_if cond tcase fcase names acc =
-    let ctcase = compile tcase names [Join] in
-    let cfcase = compile fcase names [Join] in
-    let acc' = Sel (ctcase, cfcase) :: acc in
-    compile cond names acc'
-  and compile_lambda body names acc =
-    Ldf (compile body names [Rtn]) :: acc
+and compile_if cond tcase fcase names acc =
+  let ctcase = compile tcase names [Join] in
+  let cfcase = compile fcase names [Join] in
+  let acc' = Sel (ctcase, cfcase) :: acc in
+  compile cond names acc'
+and compile_lambda body names acc =
+  Ldf (compile body names [Rtn]) :: acc
