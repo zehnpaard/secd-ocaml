@@ -66,8 +66,12 @@ let rec load_commands' i = function
 and load_command i = function
   | Compile.Stop -> load_simple_command i 0
   | Compile.Nil -> load_simple_command i 1
-  | Compile.Ldc n -> e
-  | Compile.Ld (n, m) -> e
+  | Compile.Ldc n ->
+      let j = makeCons (makeInt n) i in
+      load_simple_command 2 j
+  | Compile.Ld (n, m) ->
+      let j = makeCons (makeInt n) (makeInt m) in
+      load_simple_command 3 j
   | Compile.Car -> load_simple_command i 4
   | Compile.Cdr -> load_simple_command i 5
   | Compile.Atom -> load_simple_command i 6
@@ -79,9 +83,14 @@ and load_command i = function
   | Compile.Mul -> load_simple_command i 12
   | Compile.Div -> load_simple_command i 13
   | Compile.Rem -> load_simple_command i 14
-  | Compile.Sel (ts, fs) -> e
+  | Compile.Sel (ts, fs) ->
+      let j = load_commands' i (List.rev fs) in
+      let k = load_commands' j (List.rev ts) in
+      load_simple_command 15 k
   | Compile.Join -> load_simple_command i 16
-  | Compile.Ldf cs -> e
+  | Compile.Ldf cs ->
+      let j = load_commands' i (List.rev cs) in
+      load_simple_command 17 j
   | Compile.Ap -> load_simple_command i 18
   | Compile.Rtn -> load_simple_command i 19
   | Compile.Dum -> load_simple_command i 20
