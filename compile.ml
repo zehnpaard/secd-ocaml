@@ -9,6 +9,7 @@ type t =
   | Sel
   | Join
   | Ldf of t list
+  | Rtn
   | Sel of t list * t list
   | Car
   | Cdr

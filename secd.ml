@@ -56,6 +56,49 @@ let binOp r op =
 let rplaca x y =
   (cells.(x) := Cons (y, cdr x); x)
 
+let load_simple_command i n =
+  makeCons (makeInt n) i
+
+let rec load_commands' i = function
+  | [] -> i
+  | x :: xs ->
+      load_commands' (load_command i x) xs
+and load_command i = function
+  | Compile.Stop -> load_simple_command i 0
+  | Compile.Nil -> load_simple_command i 1
+  | Compile.Ldc n ->
+      let j = makeCons (makeInt n) i in
+      load_simple_command 2 j
+  | Compile.Ld (n, m) ->
+      let j = makeCons (makeInt n) (makeInt m) in
+      load_simple_command 3 j
+  | Compile.Car -> load_simple_command i 4
+  | Compile.Cdr -> load_simple_command i 5
+  | Compile.Atom -> load_simple_command i 6
+  | Compile.Cons -> load_simple_command i 7
+  | Compile.Eq -> load_simple_command i 8
+  | Compile.Leq -> load_simple_command i 9
+  | Compile.Add -> load_simple_command i 10
+  | Compile.Sub -> load_simple_command i 11
+  | Compile.Mul -> load_simple_command i 12
+  | Compile.Div -> load_simple_command i 13
+  | Compile.Rem -> load_simple_command i 14
+  | Compile.Sel (ts, fs) ->
+      let j = load_commands' i (List.rev fs) in
+      let k = load_commands' j (List.rev ts) in
+      load_simple_command 15 k
+  | Compile.Join -> load_simple_command i 16
+  | Compile.Ldf cs ->
+      let j = load_commands' i (List.rev cs) in
+      load_simple_command 17 j
+  | Compile.Ap -> load_simple_command i 18
+  | Compile.Rtn -> load_simple_command i 19
+  | Compile.Dum -> load_simple_command i 20
+  | Compile.Rap -> load_simple_command i 21
+
+let load_commands commands =
+  c := load_commands' (List.rev commands)
+
 let runOneStep () = match cells.(popR c) with
   | Int 0 (* STOP *) -> c := 0
   | Int 1 (* NIL *) -> pushR s 0
